@@ -70,13 +70,11 @@ export function updateWidgetTitles(
 ): void {
   for (const session of sessions) {
     const widget = widgetsByInitId.get(session.initializationId);
-    if (widget && session.name) {
-      // Only update if the name has changed
+    if (widget && session.name && session.path) {
+      // Only update file-based notebooks, keep user-provided titles for unsaved notebooks
       if (widget.title.label !== session.name) {
         widget.title.label = session.name;
-        widget.title.caption = session.path
-          ? `marimo: ${session.path}`
-          : `marimo: ${session.name}`;
+        widget.title.caption = `marimo: ${session.path}`;
       }
     }
   }

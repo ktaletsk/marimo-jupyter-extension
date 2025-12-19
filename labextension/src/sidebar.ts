@@ -108,17 +108,25 @@ export class MarimoSidebar extends Widget {
     }
   }
 
-  private async _checkServerStatus(): Promise<boolean> {
+  private async _isServerHealthy(): Promise<boolean> {
     try {
       const baseUrl = this._getMarimoBaseUrl();
-      const response = await fetch(`${baseUrl}api/status`, {
+      const response = await fetch(`${baseUrl}health`, {
         method: 'GET',
         credentials: 'same-origin'
       });
-      return response.ok;
+      if (response.ok) {
+        const data = await response.json();
+        return data.status === 'healthy';
+      }
+      return false;
     } catch {
       return false;
     }
+  }
+
+  private async _checkServerStatus(): Promise<boolean> {
+    return this._isServerHealthy();
   }
 
   private _updateServerStatus(isRunning: boolean): void {
@@ -149,18 +157,10 @@ export class MarimoSidebar extends Widget {
       // Making a request to the proxy URL triggers jupyter-server-proxy to start the process
       const maxAttempts = 15;
       for (let i = 0; i < maxAttempts; i++) {
-        try {
-          const response = await fetch(`${baseUrl}api/status`, {
-            method: 'GET',
-            credentials: 'same-origin'
-          });
-          if (response.ok) {
-            this._updateServerStatus(true);
-            await this._refreshSessions();
-            return;
-          }
-        } catch {
-          // Server not ready yet, wait and retry
+        if (await this._isServerHealthy()) {
+          this._updateServerStatus(true);
+          await this._refreshSessions();
+          return;
         }
         await new Promise(resolve => setTimeout(resolve, 1000));
       }
@@ -216,18 +216,10 @@ export class MarimoSidebar extends Widget {
 
     for (let i = 0; i < maxAttempts; i++) {
       await new Promise(resolve => setTimeout(resolve, 1000));
-      try {
-        const response = await fetch(`${baseUrl}api/status`, {
-          method: 'GET',
-          credentials: 'same-origin'
-        });
-        if (response.ok) {
-          this._updateServerStatus(true);
-          await this._refreshSessions();
-          return;
-        }
-      } catch {
-        // Server not ready yet, wait and retry
+      if (await this._isServerHealthy()) {
+        this._updateServerStatus(true);
+        await this._refreshSessions();
+        return;
       }
     }
 
