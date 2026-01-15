@@ -30,7 +30,10 @@ export function createMarimoWidget(
 
   // Generate initializationId for new notebooks (include __new__ prefix to match marimo API)
   const initId = filePath ? null : `__new__${UUID.uuid4()}`;
-  content.url = filePath ? url : `${url}?file=${initId}`;
+
+  // Build the URL with file parameter
+  const finalUrl = filePath ? url : `${url}?file=${initId}`;
+  content.url = finalUrl;
   content.addClass('jp-MarimoWidget');
 
   const widget = new MainAreaWidget({ content });

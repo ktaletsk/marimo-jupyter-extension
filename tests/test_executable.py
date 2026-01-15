@@ -10,9 +10,9 @@ class TestGetMarimoCommand:
     """Test suite for get_marimo_command() function."""
 
     def test_uvx_mode_with_uvx_path(self, clean_env):
-        """When uvx_path is set, should return [uvx_path, 'marimo']."""
-        from jupyter_marimo_proxy.config import Config
-        from jupyter_marimo_proxy.executable import get_marimo_command
+        """When uvx_path set, return [uvx_path, 'marimo[sandbox]==0.19.4']."""
+        from marimo_jupyter_extension.config import Config
+        from marimo_jupyter_extension.executable import get_marimo_command
 
         config = Config(
             marimo_path=None,
@@ -22,12 +22,12 @@ class TestGetMarimoCommand:
         )
         result = get_marimo_command(config)
 
-        assert result == ["/usr/local/bin/uvx", "marimo"]
+        assert result == ["/usr/local/bin/uvx", "marimo[sandbox]==0.19.4"]
 
     def test_explicit_marimo_path(self, clean_env):
         """When marimo_path is set, should return [marimo_path]."""
-        from jupyter_marimo_proxy.config import Config
-        from jupyter_marimo_proxy.executable import get_marimo_command
+        from marimo_jupyter_extension.config import Config
+        from marimo_jupyter_extension.executable import get_marimo_command
 
         config = Config(
             marimo_path="/opt/bin/marimo",
@@ -40,10 +40,9 @@ class TestGetMarimoCommand:
         assert result == ["/opt/bin/marimo"]
 
     def test_uvx_takes_precedence_over_marimo_path(self, clean_env):
-        """When both uvx_path and marimo_path are set, uvx_path takes
-        precedence."""
-        from jupyter_marimo_proxy.config import Config
-        from jupyter_marimo_proxy.executable import get_marimo_command
+        """When both uvx_path and marimo_path set, uvx_path wins."""
+        from marimo_jupyter_extension.config import Config
+        from marimo_jupyter_extension.executable import get_marimo_command
 
         config = Config(
             marimo_path="/opt/bin/marimo",
@@ -53,12 +52,12 @@ class TestGetMarimoCommand:
         )
         result = get_marimo_command(config)
 
-        assert result == ["/usr/local/bin/uvx", "marimo"]
+        assert result == ["/usr/local/bin/uvx", "marimo[sandbox]==0.19.4"]
 
     def test_finds_marimo_in_path(self, clean_env, mock_marimo_in_path):
         """When no explicit path, should find marimo in PATH."""
-        from jupyter_marimo_proxy.config import Config
-        from jupyter_marimo_proxy.executable import get_marimo_command
+        from marimo_jupyter_extension.config import Config
+        from marimo_jupyter_extension.executable import get_marimo_command
 
         config = Config(
             marimo_path=None,
@@ -74,8 +73,8 @@ class TestGetMarimoCommand:
         self, clean_env, mock_marimo_not_in_path
     ):
         """When marimo not found anywhere, should raise FileNotFoundError."""
-        from jupyter_marimo_proxy.config import Config
-        from jupyter_marimo_proxy.executable import get_marimo_command
+        from marimo_jupyter_extension.config import Config
+        from marimo_jupyter_extension.executable import get_marimo_command
 
         config = Config(
             marimo_path=None,
@@ -88,7 +87,7 @@ class TestGetMarimoCommand:
             get_marimo_command(config)
 
         assert "marimo executable not found" in str(exc_info.value)
-        assert "JUPYTERMARIMOPROXY_MARIMO_PATH" in str(exc_info.value)
+        assert "MarimoProxyConfig.marimo_path" in str(exc_info.value)
 
 
 class TestFindMarimo:
@@ -96,7 +95,7 @@ class TestFindMarimo:
 
     def test_finds_in_system_path(self, clean_env, mock_marimo_in_path):
         """Should find marimo via shutil.which."""
-        from jupyter_marimo_proxy.executable import _find_marimo
+        from marimo_jupyter_extension.executable import _find_marimo
 
         result = _find_marimo()
 
@@ -104,14 +103,14 @@ class TestFindMarimo:
 
     def test_finds_in_common_locations(self, clean_env, temp_bin_dir):
         """Should check common locations when not in PATH."""
-        from jupyter_marimo_proxy.executable import _find_marimo
+        from marimo_jupyter_extension.executable import _find_marimo
 
         # Create marimo in common location
         marimo_path = Path(temp_bin_dir) / "marimo"
 
         with patch("shutil.which", return_value=None):
             with patch(
-                "jupyter_marimo_proxy.executable.COMMON_LOCATIONS",
+                "marimo_jupyter_extension.executable.COMMON_LOCATIONS",
                 [str(marimo_path)],
             ):
                 result = _find_marimo()
@@ -122,10 +121,10 @@ class TestFindMarimo:
         self, clean_env, mock_marimo_not_in_path
     ):
         """Should return None when marimo not found anywhere."""
-        from jupyter_marimo_proxy.executable import _find_marimo
+        from marimo_jupyter_extension.executable import _find_marimo
 
         with patch(
-            "jupyter_marimo_proxy.executable.COMMON_LOCATIONS",
+            "marimo_jupyter_extension.executable.COMMON_LOCATIONS",
             ["/nonexistent/path/marimo"],
         ):
             result = _find_marimo()

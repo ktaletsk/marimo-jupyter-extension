@@ -1,6 +1,7 @@
 """Jupyter server extension handlers for marimo tools."""
 
 import json
+from pathlib import Path
 
 from jupyter_server.base.handlers import JupyterHandler
 from jupyter_server.utils import url_path_join
@@ -91,9 +92,74 @@ class RestartHandler(JupyterHandler):
             self.finish({"success": False, "error": str(e)})
 
 
+class CreateStubHandler(JupyterHandler):
+    """Handler for creating marimo notebook stub files."""
+
+    @web.authenticated
+    async def post(self):
+        """Create a marimo notebook stub with PEP 723 metadata.
+
+        POST /marimo-tools/create-stub
+        Body: {"path": "notebook.py", "venv": "/path/to/python"}
+        """
+        data = json.loads(self.request.body)
+        path = data.get("path")
+        venv = data.get("venv")
+
+        if not path:
+            self.set_status(400)
+            self.finish({"success": False, "error": "Missing path"})
+            return
+
+        # Build stub content
+        lines = []
+
+        # Add PEP 723 header if venv is specified
+        if venv:
+            # Extract venv directory from python executable path
+            # e.g., /path/to/venv/bin/python3.12 -> /path/to/venv
+            venv_path = Path(venv)
+            if venv_path.parent.name == "bin":
+                venv_path = venv_path.parent.parent
+            lines.extend(
+                [
+                    "# /// script",
+                    "# [tool.marimo.venv]",
+                    f'# path = "{venv_path}"',
+                    "# ///",
+                    "",
+                ]
+            )
+
+        # Add marimo app boilerplate
+        lines.extend(
+            [
+                "import marimo",
+                "",
+                '__generated_with = "0.19.2"',
+                'app = marimo.App(width="medium")',
+                "",
+                "",
+                'if __name__ == "__main__":',
+                "    app.run()",
+                "",
+            ]
+        )
+
+        content = "\n".join(lines)
+
+        try:
+            file_path = Path(path)
+            file_path.write_text(content)
+            self.finish({"success": True, "path": path})
+        except Exception as e:
+            self.set_status(500)
+            self.finish({"success": False, "error": str(e)})
+
+
 def _jupyter_server_extension_points():
     """Return the server extension points for this package."""
-    return [{"module": "jupyter_marimo_proxy.handlers"}]
+    return [{"module": "marimo_jupyter_extension.handlers"}]
 
 
 def _load_jupyter_server_extension(server_app):
@@ -104,6 +170,10 @@ def _load_jupyter_server_extension(server_app):
         [
             (url_path_join(base_url, "marimo-tools/convert"), ConvertHandler),
             (url_path_join(base_url, "marimo-tools/restart"), RestartHandler),
+            (
+                url_path_join(base_url, "marimo-tools/create-stub"),
+                CreateStubHandler,
+            ),
         ],
     )
-    server_app.log.info("jupyter-marimo-proxy tools extension loaded")
+    server_app.log.info("marimo-jupyter-extension tools extension loaded")

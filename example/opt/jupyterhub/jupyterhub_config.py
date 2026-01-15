@@ -36,10 +36,7 @@ c.SystemdSpawner.user_workingdir = "/opt/notebooks/{USERNAME}"
 # =============================================================================
 # HTTP Proxy
 # =============================================================================
-c.ConfigurableHTTPProxy.command = (
-    "/opt/jupyterhub/node_modules/configurable-http-proxy"
-    "/bin/configurable-http-proxy"
-)
+c.ConfigurableHTTPProxy.command = "/opt/jupyterhub/node_modules/configurable-http-proxy/bin/configurable-http-proxy"
 
 # =============================================================================
 # Spawned notebook environment

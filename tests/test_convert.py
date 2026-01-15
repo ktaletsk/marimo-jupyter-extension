@@ -14,7 +14,7 @@ class TestConvertNotebookToMarimo:
     def test_successful_conversion(self, clean_env, mock_marimo_in_path):
         """Test successful conversion calls marimo convert with correct
         arguments."""
-        from jupyter_marimo_proxy.convert import convert_notebook_to_marimo
+        from marimo_jupyter_extension.convert import convert_notebook_to_marimo
 
         with tempfile.TemporaryDirectory() as tmpdir:
             input_file = Path(tmpdir) / "test.ipynb"
@@ -49,7 +49,7 @@ class TestConvertNotebookToMarimo:
         self, clean_env, mock_marimo_in_path
     ):
         """Test that conversion failure raises RuntimeError."""
-        from jupyter_marimo_proxy.convert import convert_notebook_to_marimo
+        from marimo_jupyter_extension.convert import convert_notebook_to_marimo
 
         with tempfile.TemporaryDirectory() as tmpdir:
             input_file = Path(tmpdir) / "test.ipynb"
@@ -73,7 +73,7 @@ class TestConvertNotebookToMarimo:
         self, clean_env, mock_marimo_in_path
     ):
         """Test that conversion error uses stdout when stderr is empty."""
-        from jupyter_marimo_proxy.convert import convert_notebook_to_marimo
+        from marimo_jupyter_extension.convert import convert_notebook_to_marimo
 
         with tempfile.TemporaryDirectory() as tmpdir:
             input_file = Path(tmpdir) / "test.ipynb"
@@ -96,17 +96,17 @@ class TestConvertNotebookToMarimo:
         self, clean_env, mock_marimo_in_path
     ):
         """Test that function uses get_config and get_marimo_command."""
-        from jupyter_marimo_proxy.convert import convert_notebook_to_marimo
+        from marimo_jupyter_extension.convert import convert_notebook_to_marimo
 
         with tempfile.TemporaryDirectory() as tmpdir:
             input_file = Path(tmpdir) / "test.ipynb"
             output_file = Path(tmpdir) / "test.py"
 
             with patch(
-                "jupyter_marimo_proxy.convert.get_config"
+                "marimo_jupyter_extension.convert.get_config"
             ) as mock_config:
                 with patch(
-                    "jupyter_marimo_proxy.convert.get_marimo_command"
+                    "marimo_jupyter_extension.convert.get_marimo_command"
                 ) as mock_cmd:
                     mock_cmd.return_value = [mock_marimo_in_path, "marimo"]
 

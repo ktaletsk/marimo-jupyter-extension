@@ -29,7 +29,7 @@ def get_marimo_command(config: Config) -> list[str]:
     """
     # uvx mode (opt-in via explicit uvx_path)
     if config.uvx_path:
-        return [config.uvx_path, "marimo"]
+        return [config.uvx_path, "marimo[sandbox]==0.19.4"]
 
     # Explicit marimo path
     if config.marimo_path:
@@ -43,8 +43,8 @@ def get_marimo_command(config: Config) -> list[str]:
         "marimo executable not found.\n"
         "Solutions:\n"
         "  - Install marimo: pip install marimo\n"
-        "  - Set JUPYTERMARIMOPROXY_MARIMO_PATH=/path/to/marimo\n"
-        "  - Set JUPYTERMARIMOPROXY_UVX_PATH=/path/to/uvx (uses uvx marimo)"
+        "  - Configure MarimoProxyConfig.marimo_path in jupyterhub_config.py\n"
+        "  - Configure MarimoProxyConfig.uvx_path to use uvx marimo"
     )
 
 

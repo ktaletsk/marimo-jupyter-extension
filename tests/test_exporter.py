@@ -10,20 +10,20 @@ class TestMarimoExporter:
 
     def test_exporter_importable(self):
         """Test that MarimoExporter is importable."""
-        from jupyter_marimo_proxy.exporter import MarimoExporter
+        from marimo_jupyter_extension.exporter import MarimoExporter
 
         assert MarimoExporter is not None
 
     def test_exporter_attributes(self):
         """Test that exporter has correct attributes."""
-        from jupyter_marimo_proxy.exporter import MarimoExporter
+        from marimo_jupyter_extension.exporter import MarimoExporter
 
         assert MarimoExporter.export_from_notebook == "marimo"
         assert MarimoExporter.output_mimetype == "text/x-python"
 
     def test_file_extension_default(self):
         """Test that default file extension is .py."""
-        from jupyter_marimo_proxy.exporter import MarimoExporter
+        from marimo_jupyter_extension.exporter import MarimoExporter
 
         exporter = MarimoExporter()
         assert exporter.file_extension == ".py"
@@ -32,7 +32,7 @@ class TestMarimoExporter:
         self, clean_env, mock_marimo_in_path
     ):
         """Test successful notebook conversion."""
-        from jupyter_marimo_proxy.exporter import MarimoExporter
+        from marimo_jupyter_extension.exporter import MarimoExporter
 
         exporter = MarimoExporter()
 
@@ -51,7 +51,7 @@ class TestMarimoExporter:
         }
 
         with patch(
-            "jupyter_marimo_proxy.exporter.convert_notebook_to_marimo"
+            "marimo_jupyter_extension.exporter.convert_notebook_to_marimo"
         ) as mock_convert:
             # Mock successful conversion
             def mock_convert_side_effect(input_path, output_path):
@@ -73,7 +73,7 @@ class TestMarimoExporter:
         self, clean_env, mock_marimo_in_path
     ):
         """Test that conversion failure raises RuntimeError."""
-        from jupyter_marimo_proxy.exporter import MarimoExporter
+        from marimo_jupyter_extension.exporter import MarimoExporter
 
         exporter = MarimoExporter()
 
@@ -85,7 +85,7 @@ class TestMarimoExporter:
         }
 
         with patch(
-            "jupyter_marimo_proxy.exporter.convert_notebook_to_marimo"
+            "marimo_jupyter_extension.exporter.convert_notebook_to_marimo"
         ) as mock_convert:
             mock_convert.side_effect = RuntimeError(
                 "marimo convert failed: test error"
@@ -100,7 +100,7 @@ class TestMarimoExporter:
         self, clean_env, mock_marimo_in_path
     ):
         """Test that temporary files are cleaned up on success."""
-        from jupyter_marimo_proxy.exporter import MarimoExporter
+        from marimo_jupyter_extension.exporter import MarimoExporter
 
         exporter = MarimoExporter()
 
@@ -112,9 +112,9 @@ class TestMarimoExporter:
         }
 
         with patch(
-            "jupyter_marimo_proxy.exporter.convert_notebook_to_marimo"
+            "marimo_jupyter_extension.exporter.convert_notebook_to_marimo"
         ) as mock_convert:
-            with patch("jupyter_marimo_proxy.exporter.Path") as mock_path:
+            with patch("marimo_jupyter_extension.exporter.Path") as mock_path:
                 mock_unlink = MagicMock()
                 mock_path.return_value.unlink = mock_unlink
 
@@ -136,7 +136,7 @@ class TestMarimoExporter:
         self, clean_env, mock_marimo_in_path
     ):
         """Test that temporary files are cleaned up even on failure."""
-        from jupyter_marimo_proxy.exporter import MarimoExporter
+        from marimo_jupyter_extension.exporter import MarimoExporter
 
         exporter = MarimoExporter()
 
@@ -148,9 +148,9 @@ class TestMarimoExporter:
         }
 
         with patch(
-            "jupyter_marimo_proxy.exporter.convert_notebook_to_marimo"
+            "marimo_jupyter_extension.exporter.convert_notebook_to_marimo"
         ) as mock_convert:
-            with patch("jupyter_marimo_proxy.exporter.Path") as mock_path:
+            with patch("marimo_jupyter_extension.exporter.Path") as mock_path:
                 mock_unlink = MagicMock()
                 mock_path.return_value.unlink = mock_unlink
 
@@ -166,7 +166,7 @@ class TestMarimoExporter:
         self, clean_env, mock_marimo_in_path
     ):
         """Test that resources dict is preserved and returned."""
-        from jupyter_marimo_proxy.exporter import MarimoExporter
+        from marimo_jupyter_extension.exporter import MarimoExporter
 
         exporter = MarimoExporter()
 
@@ -180,7 +180,7 @@ class TestMarimoExporter:
         resources = {"custom_key": "custom_value"}
 
         with patch(
-            "jupyter_marimo_proxy.exporter.convert_notebook_to_marimo"
+            "marimo_jupyter_extension.exporter.convert_notebook_to_marimo"
         ) as mock_convert:
 
             def mock_convert_side_effect(input_path, output_path):
