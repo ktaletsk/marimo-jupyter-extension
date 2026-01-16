@@ -149,21 +149,24 @@ echo "  • New Version: $NEW_VERSION"
 echo "  • Version Type: $VERSION_TYPE"
 echo "  • Files to be modified:"
 echo "    - marimo_jupyter_extension/__init__.py"
+echo "    - pyproject.toml"
 
 if ! confirm "Proceed with release?"; then
   print_warning "Release cancelled"
   exit 1
 fi
 
-# Update version in __init__.py
+# Update version in __init__.py and pyproject.toml
 print_step "Updating version"
 sed -i.bak "s/__version__ = \"$CURRENT_VERSION\"/__version__ = \"$NEW_VERSION\"/" marimo_jupyter_extension/__init__.py
 rm -f marimo_jupyter_extension/__init__.py.bak
-print_success "Version updated to $NEW_VERSION"
+sed -i.bak "s/^version = \"$CURRENT_VERSION\"/version = \"$NEW_VERSION\"/" pyproject.toml
+rm -f pyproject.toml.bak
+print_success "Version updated to $NEW_VERSION in __init__.py and pyproject.toml"
 
 # Commit version change
 print_step "Committing version change"
-git add marimo_jupyter_extension/__init__.py
+git add marimo_jupyter_extension/__init__.py pyproject.toml
 git commit -m "release: v$NEW_VERSION"
 print_success "Version change committed"
 
